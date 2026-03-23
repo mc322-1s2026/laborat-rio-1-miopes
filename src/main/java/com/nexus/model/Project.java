@@ -14,7 +14,7 @@ public class Project {
         this.totalBudget = totalBudget;
     }
 
-    public void addTask(Task t) {
+    public void addTask(Task t) throws NexusValidationException {
         //Este méto do deve validar se a soma das horas de todas as tarefas atuais
         // + a nova tarefa excede o totalBudget do projeto.
         // Se exceder, lance NexusValidationException.
