@@ -34,15 +34,40 @@ public class LogProcessor {
                                 System.out.println("[LOG] Usuário criado: " + p[1]);
                             }
                             case "CREATE_TASK" -> {
-                                //criei variáveis para ficar mais legível e
-                                // adicionei o esforço da tarefa como parametro
+                                // Criei variáveis para ficar mais legível e
+                                // adicionei o esforço da tarefa como parametro:
                                 String nome = p[1];
                                 LocalDate data = LocalDate.parse(p[2]);
+
+
+
+
+
+                                // Verifica se o argumento de effort foi passado:
                                 int effort = (p.length > 3) ? Integer.parseInt(p[3]) : 0;
 
                                 Task t = new Task(nome, data, effort);
                                 workspace.addTask(t);
                                 System.out.println("[LOG] Tarefa criada: " + p[1]);
+                            }
+                            case "CREATE_PROJECT" -> {
+                                String projectName =  p[1];
+                                int budgetHours = Integer.parseInt(p[2]);
+                                Project project = new Project(projectName, budgetHours);
+                                workspace.addProject(project);
+                                System.out.println("[LOG] Projeto Criado: " + projectName);
+                            }
+                            case "ASSIGN_USER" -> {
+                                int taskId = Integer.parseInt(p[1]);
+                                String userName = p[2];
+
+                            }
+                            case "CHANGE_STATUS" -> {
+                                int taskId = Integer.parseInt(p[1]);
+                                String status = p[2];
+                            }
+                            case "REPORT_STATUS" -> {
+                                // ¯\_(ツ)_/¯
                             }
                             default -> System.err.println("[WARN] Ação desconhecida: " + action);
                         }

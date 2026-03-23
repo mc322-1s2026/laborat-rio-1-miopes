@@ -26,6 +26,8 @@ public class Project {
         if ((usedBudget + t.getEstimatedEffort()) > totalBudget){
             throw new NexusValidationException("O orçamento do projeto não pode ser ultrapassado");
         }
+
+        tasks.add(t);
     }
 
     public String getName() { return name; }

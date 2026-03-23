@@ -17,13 +17,12 @@ public class Task {
     private String title;
     private TaskStatus status;
     private User owner;
-    //novo atributo
     private int estimatedEffort;
 
-    public Task(String title, LocalDate deadline, int estimatedEffort) {
+    public Task(String title, LocalDate deadline, int estimatedEffort) throws Exception {
         this.id = nextId++;
         this.deadline = deadline;
-        this.title = title;
+        setTitle(title);
         this.status = TaskStatus.TO_DO;
         //novo
         this.estimatedEffort = estimatedEffort;
@@ -84,11 +83,20 @@ public class Task {
         }
     }
 
-    // Getters
+    // Getters:
     public int getId() { return id; }
     public TaskStatus getStatus() { return status; }
     public String getTitle() { return title; }
     public LocalDate getDeadline() { return deadline; }
     public User getOwner() { return owner; }
     public int getEstimatedEffort() { return estimatedEffort; }
+
+    // Setters:
+    public void setTitle(String title){
+        if (title == null || title.isBlank()){
+            throw new NexusValidationException("O título da tarefa não pode ser vazio");
+        }
+
+        this.title = title;
+    }
 }
