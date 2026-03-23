@@ -1,5 +1,7 @@
 package com.nexus.model;
 
+import com.nexus.exception.NexusValidationException;
+
 import java.time.LocalDate;
 
 public class Task {
@@ -33,6 +35,19 @@ public class Task {
     public void moveToInProgress(User user) {
         // TODO: Implementar lógica de proteção e atualizar activeWorkload
         // Se falhar, incrementar totalValidationErrors e lançar NexusValidationException
+        if (user == null){
+            totalValidationErrors++;
+            throw new NexusValidationException("Deve ser atribuído um dono para iniciar a tarefa");
+        }
+
+        if (this.status == TaskStatus.BLOCKED){
+            totalValidationErrors++;
+            throw new NexusValidationException("A tarefa não pode estar bloqueada para ser iniciada");
+        }
+
+        this.owner = user;
+        this.status = TaskStatus.IN_PROGRESS;
+        activeWorkload++;
     }
 
     /**
@@ -41,11 +56,25 @@ public class Task {
      */
     public void markAsDone() {
         // TODO: Implementar lógica de proteção e atualizar activeWorkload (decrementar)
+        if (this.status == TaskStatus.BLOCKED){
+            totalValidationErrors++;
+            throw new NexusValidationException("Uma tarefa bloqueada não pode ser concluída");
+        }
+
+        if(this.status == TaskStatus.IN_PROGRESS){
+            activeWorkload--;
+        }
+        this.status = TaskStatus.DONE;
     }
 
     public void setBlocked(boolean blocked) {
         if (blocked) {
-            this.status = TaskStatus.BLOCKED;
+            if (this.status == TaskStatus.DONE){
+                totalValidationErrors++;
+                throw new NexusValidationException("Uma tarefa concluída não pode ser bloqueada");
+            } else {
+                this.status = TaskStatus.BLOCKED;
+            }
         } else {
             this.status = TaskStatus.TO_DO; // Simplificação para o Lab
         }
