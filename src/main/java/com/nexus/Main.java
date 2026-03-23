@@ -112,10 +112,10 @@ public class Main {
             System.out.print("Esforço estimado em horas (número inteiro");
             int effort = scanner.nextInt();
 
-            Task newTask = new Task(title, deadline,effort);
+            Task newTask = new Task(title, deadline, effort);
             workspace.addTask(newTask);
             System.out.println("[OK] Tarefa adicionada ao backlog.");
-        } catch (DateTimeParseException e) {
+        } catch (Exception e) {
             System.err.println("[ERRO] Formato de data inválido. Use AAAA-MM-DD.");
         }
     }

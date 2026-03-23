@@ -38,16 +38,13 @@ public class LogProcessor {
                                 // adicionei o esforço da tarefa como parametro:
                                 String nome = p[1];
                                 LocalDate data = LocalDate.parse(p[2]);
-
-
-
-
-
                                 // Verifica se o argumento de effort foi passado:
                                 int effort = (p.length > 3) ? Integer.parseInt(p[3]) : 0;
+                                String projectName =  p[4];
 
                                 Task t = new Task(nome, data, effort);
                                 workspace.addTask(t);
+                                workspace.addTaskToProject(t.getId(), projectName);
                                 System.out.println("[LOG] Tarefa criada: " + p[1]);
                             }
                             case "CREATE_PROJECT" -> {
@@ -61,10 +58,16 @@ public class LogProcessor {
                                 int taskId = Integer.parseInt(p[1]);
                                 String userName = p[2];
 
+                                User user = users.stream()
+                                        
+
+                                workspace.assignUserToTaskById(taskId, userName);
                             }
                             case "CHANGE_STATUS" -> {
                                 int taskId = Integer.parseInt(p[1]);
                                 String status = p[2];
+
+
                             }
                             case "REPORT_STATUS" -> {
                                 // ¯\_(ツ)_/¯
@@ -73,6 +76,8 @@ public class LogProcessor {
                         }
                     } catch (NexusValidationException e) {
                         System.err.println("[ERRO DE REGRAS] Falha no comando '" + line + "': " + e.getMessage());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }

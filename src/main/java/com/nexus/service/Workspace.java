@@ -38,9 +38,23 @@ public class Workspace {
         return Collections.unmodifiableList(projects);
     }
 
+    public Project getProject(String projectName) throws Exception {
+        return projects.stream()
+                .filter(project -> project.getName().equals(projectName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Projeto com nome " + projectName + " não encontrada."));
+    }
+
     // Métodos:
     public void assignUserToTaskById(int taskId, User user) throws Exception {
         Task task = getTask(taskId);
-        task.
+        task.setOwner(user);
+    }
+
+    public void addTaskToProject(int taskId, String projectName) throws Exception {
+        Task task = getTask(taskId);
+        Project project = getProject(projectName);
+
+        project.addTask(task);
     }
 }
