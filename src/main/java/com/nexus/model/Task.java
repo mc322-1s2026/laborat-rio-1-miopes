@@ -36,7 +36,7 @@ public class Task {
      * Move a tarefa para IN_PROGRESS.
      * Regra: Só é possível se houver um owner atribuído e não estiver BLOCKED.
      */
-    public void moveToInProgress(User user) {
+    public void moveToInProgress(User user) throws NexusValidationException {
         // TODO: Implementar lógica de proteção e atualizar activeWorkload
         // Se falhar, incrementar totalValidationErrors e lançar NexusValidationException
         if (user == null){
@@ -58,7 +58,7 @@ public class Task {
      * Finaliza a tarefa.
      * Regra: Só pode ser movida para DONE se não estiver BLOCKED.
      */
-    public void markAsDone() {
+    public void markAsDone() throws NexusValidationException {
         // TODO: Implementar lógica de proteção e atualizar activeWorkload (decrementar)
         if (this.status == TaskStatus.BLOCKED){
             totalValidationErrors++;
@@ -71,7 +71,7 @@ public class Task {
         this.status = TaskStatus.DONE;
     }
 
-    public void setBlocked(boolean blocked) {
+    public void setBlocked(boolean blocked) throws NexusValidationException {
         if (blocked) {
             if (this.status == TaskStatus.DONE){
                 totalValidationErrors++;
