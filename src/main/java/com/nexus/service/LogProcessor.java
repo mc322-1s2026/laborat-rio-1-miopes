@@ -34,7 +34,13 @@ public class LogProcessor {
                                 System.out.println("[LOG] Usuário criado: " + p[1]);
                             }
                             case "CREATE_TASK" -> {
-                                Task t = new Task(p[1], LocalDate.parse(p[2]));
+                                //criei variáveis para ficar mais legível e
+                                // adicionei o esforço da tarefa como parametro
+                                String nome = p[1];
+                                LocalDate data = LocalDate.parse(p[2]);
+                                int effort = (p.length > 3) ? Integer.parseInt(p[3]) : 0;
+
+                                Task t = new Task(nome, data, effort);
                                 workspace.addTask(t);
                                 System.out.println("[LOG] Tarefa criada: " + p[1]);
                             }
