@@ -4,6 +4,9 @@ import com.nexus.exception.NexusValidationException;
 
 import java.time.LocalDate;
 
+/**
+ * Representa uma tarefa com ciclo de vida controlado por regras de negocio.
+ */
 public class Task {
     // Métricas Globais (Alunos implementam a lógica de incremento/decremento)
     public static int totalTasksCreated = 0;
@@ -17,39 +20,48 @@ public class Task {
     private String title;
     private TaskStatus status;
     private User owner;
-    //novo atributo
     private int estimatedEffort;
 
-    public Task(String title, LocalDate deadline, int estimatedEffort) {
+    /**
+     * Cria uma nova tarefa.
+     *
+     * @param title titulo da tarefa
+     * @param deadline data limite de entrega
+     * @param estimatedEffort esforco estimado em horas
+     */
+    public Task(String title, LocalDate deadline, int estimatedEffort) throws Exception {
         this.id = nextId++;
+
+        if (deadline == null) {
+            totalValidationErrors++;
+            throw new IllegalArgumentException("A data de deadline não pode ser nula");
+        }
         this.deadline = deadline;
-        this.title = title;
+
+        setTitle(title);
         this.status = TaskStatus.TO_DO;
-        //novo
-        this.estimatedEffort = estimatedEffort;
-        
-        // Ação do Aluno:
-        totalTasksCreated++; 
+        setEstimatedEffort(estimatedEffort);
+
+        totalTasksCreated++;
     }
 
     /**
      * Move a tarefa para IN_PROGRESS.
      * Regra: Só é possível se houver um owner atribuído e não estiver BLOCKED.
      */
-    public void moveToInProgress(User user) throws NexusValidationException {
-        // TODO: Implementar lógica de proteção e atualizar activeWorkload
+    public void moveToInProgress() throws NexusValidationException {
+        // Lógica de proteção e atualizar activeWorkload
         // Se falhar, incrementar totalValidationErrors e lançar NexusValidationException
-        if (user == null){
+        if (owner == null) {
             totalValidationErrors++;
             throw new NexusValidationException("Deve ser atribuído um dono para iniciar a tarefa");
         }
 
-        if (this.status == TaskStatus.BLOCKED){
+        if (this.status == TaskStatus.BLOCKED) {
             totalValidationErrors++;
             throw new NexusValidationException("A tarefa não pode estar bloqueada para ser iniciada");
         }
 
-        this.owner = user;
         this.status = TaskStatus.IN_PROGRESS;
         activeWorkload++;
     }
@@ -59,36 +71,130 @@ public class Task {
      * Regra: Só pode ser movida para DONE se não estiver BLOCKED.
      */
     public void markAsDone() throws NexusValidationException {
-        // TODO: Implementar lógica de proteção e atualizar activeWorkload (decrementar)
-        if (this.status == TaskStatus.BLOCKED){
+        // Lógica de proteção e atualizar activeWorkload (decrementar)
+        if (this.status == TaskStatus.BLOCKED) {
             totalValidationErrors++;
             throw new NexusValidationException("Uma tarefa bloqueada não pode ser concluída");
         }
 
-        if(this.status == TaskStatus.IN_PROGRESS){
+        if (this.status == TaskStatus.IN_PROGRESS) {
             activeWorkload--;
         }
         this.status = TaskStatus.DONE;
     }
 
-    public void setBlocked(boolean blocked) throws NexusValidationException {
-        if (blocked) {
-            if (this.status == TaskStatus.DONE){
-                totalValidationErrors++;
-                throw new NexusValidationException("Uma tarefa concluída não pode ser bloqueada");
-            } else {
-                this.status = TaskStatus.BLOCKED;
-            }
+    private void setBlocked() throws NexusValidationException {
+        if (this.status == TaskStatus.DONE) {
+            totalValidationErrors++;
+            throw new NexusValidationException("Uma tarefa concluída não pode ser bloqueada");
         } else {
-            this.status = TaskStatus.TO_DO; // Simplificação para o Lab
+            this.status = TaskStatus.BLOCKED;
         }
     }
 
-    // Getters
-    public int getId() { return id; }
-    public TaskStatus getStatus() { return status; }
-    public String getTitle() { return title; }
-    public LocalDate getDeadline() { return deadline; }
-    public User getOwner() { return owner; }
-    public int getEstimatedEffort() { return estimatedEffort; }
+    // Getters:
+    /**
+     * Retorna o identificador unico da tarefa.
+     *
+     * @return id da tarefa
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Retorna o status atual da tarefa.
+     *
+     * @return status atual
+     */
+    public TaskStatus getStatus() {
+        return status;
+    }
+
+    /**
+     * Retorna o titulo da tarefa.
+     *
+     * @return titulo atual
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Retorna o deadline da tarefa.
+     *
+     * @return data limite
+     */
+    public LocalDate getDeadline() {
+        return deadline;
+    }
+
+    /**
+     * Retorna o usuario dono da tarefa.
+     *
+     * @return owner atual, podendo ser nulo
+     */
+    public User getOwner() {
+        return owner;
+    }
+
+    /**
+     * Retorna o esforco estimado da tarefa em horas.
+     *
+     * @return esforco estimado
+     */
+    public int getEstimatedEffort() {
+        return estimatedEffort;
+    }
+
+    // Setters:
+    /**
+     * Atualiza o titulo da tarefa.
+     *
+     * @param title novo titulo
+     */
+    public void setTitle(String title) throws Exception {
+        if (title == null || title.isBlank()) {
+            totalValidationErrors++;
+            throw new NexusValidationException("O título da tarefa não pode ser vazio");
+        }
+
+        this.title = title;
+    }
+
+    /**
+     * Define o owner da tarefa.
+     *
+     * @param user usuario responsavel
+     */
+    public void setOwner(User user) {
+        this.owner = user;
+    }
+
+    private void setEstimatedEffort(int estimatedEffort) throws NexusValidationException {
+        if (estimatedEffort <= 0) {
+            totalValidationErrors++;
+            throw new NexusValidationException("O esforço estimado deve ser maior que zero");
+        }
+        this.estimatedEffort = estimatedEffort;
+    }
+
+    /**
+     * Solicita transicao de status respeitando as regras da maquina de estados.
+     *
+     * @param status status desejado
+     */
+    public void setStatus(TaskStatus status) throws NexusValidationException {
+        if (status == null) {
+            totalValidationErrors++;
+            throw new NexusValidationException("O status da tarefa não pode ser vazio");
+        }
+        if (status == TaskStatus.BLOCKED) {
+            setBlocked();
+        } else if (status == TaskStatus.IN_PROGRESS) {
+            moveToInProgress();
+        } else if (status == TaskStatus.DONE) {
+            markAsDone();
+        }
+    }
 }
